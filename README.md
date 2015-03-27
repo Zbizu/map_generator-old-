@@ -5,7 +5,7 @@ lua libs to generate terrain on [otland/forgottenserver](https://www.github.com/
 1. put map_generator in your data folder
 2. add this to global.lua:
 ````
-dofile('data/map_generator/loader.lua')
+dofile('data/map_generator-master/loader.lua')
 ````
 
 ## demo:
