@@ -304,7 +304,6 @@ function Map:border()
 	end
 end
 
--- to do: pass session id to prevent further drawing after map:reset()/map:remove()
 function Map:draw()
 	if not self.exist then return false end
 	if not (self.fromPosition and self.toPosition) then
@@ -322,9 +321,8 @@ function Map:draw()
 	end
 	
 	self:debugOutput("Drawing will take " .. self.delay/1000 .. " seconds.")
-	-- onRender
+	-- execute onRender
 	addEvent(Map.debugOutput, self.delay, self, "Drawing map completed.")
-	-- addevent toggle open dungeon
-	-- onDraw/onOpen
+	-- addevent toggle open dungeon + execute onOpen
 	return true
 end

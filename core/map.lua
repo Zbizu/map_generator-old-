@@ -1,4 +1,3 @@
--- todo: block logout (onLogout) in areas, tp to temple if no logoutblock
 map_lib_cfg = {
 	prefix = "[Generator]: ",
 	msgType = MESSAGE_INFO_DESCR,
