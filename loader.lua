@@ -8,6 +8,7 @@ local mapGeneratorDir = "data/map_generator-master/"
 ------------------------------
 print('Loading map generator core files...')
 local coreFiles = {
+	"config.lua",
 	"constants.lua",
 	"functions.lua",
 	"map.lua",
