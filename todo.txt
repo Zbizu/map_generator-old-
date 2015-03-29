@@ -1,5 +1,4 @@
 priority:
-- smooth feature in border function - fix for earth borders
 - pass session id to drawing functions to prevent further drawing after map:reset()/map:remove()
 - block logout (onLogout) in areas, tp to temple if no logoutblock
 - make use of dungeon status values

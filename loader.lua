@@ -13,11 +13,8 @@ if map_lib_cfg.debugOutput then
 	io.write(prefix .. 'Loading ' .. map_lib_cfg.generatorName .. ' core... ')
 end
 
-local osVer = jit.os
 local dirCommand = {'find ', ' -maxdepth 1 -type f'}
-
--- to do: osx support
-if osVer == "Windows" then
+if jit.os == "Windows" then
 	dirCommand = {'dir "', '" /b /aa'}
 end
 

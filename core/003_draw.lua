@@ -7,15 +7,15 @@ function Map:drawChunk(func, cx, cy)
 	local startPos = Position({x = from.x + (cx * 16), y = from.y + (cy * 16), z = from.z})
 	local endPos = {x = from.x + (cx * 16) + 15, y = from.y + (cy * 16) + 15, z = to.z}
 	
-	math.randomseed(tonumber((self.seed or os.time()) .. cx .. cy))
 	for z = startPos.z, endPos.z do
-	for y = startPos.y, endPos.y do
-	for x = startPos.x, endPos.x do
-		if x <= to.x and y <= to.y then
-			func({x = x, y = y, z = z})
+		math.randomseed(tonumber((self.seed or os.time()) .. cx .. cy .. z))
+		for y = startPos.y, endPos.y do
+		for x = startPos.x, endPos.x do
+			if x <= to.x and y <= to.y then
+				func({x = x, y = y, z = z})
+			end
 		end
-	end
-	end
+		end
 	end
 end
 
@@ -30,6 +30,47 @@ function Map:base(grounds)
 		addEvent(Map.drawChunk, self.delay, self,
 			function(pos)
 				newGround(pos, grounds[math.random(1, #grounds)])
+			end,
+			a, b
+		)
+		self.delay = self.delay + 100
+	end
+	end
+end
+
+function Map:grid(grounds)
+	local from = self.fromPosition
+	local to = self.toPosition
+	local x_chunks = math.floor((to.x - from.x) / 16)
+	local y_chunks = math.floor((to.y - from.y) / 16)
+	
+	for a = 0, x_chunks do
+	for b = 0, y_chunks do
+		addEvent(Map.drawChunk, self.delay, self,
+			function(pos)
+				if a == 0 then
+					if pos.x <= from.x + 4 then
+						newGround(pos, grounds[math.random(1, #grounds)])
+					end
+				end
+
+				if b == 0 then
+					if pos.y <= from.y + 4 then
+						newGround(pos, grounds[math.random(1, #grounds)])
+					end
+				end
+
+				if a == x_chunks then
+					if pos.x >= to.x - 4 then
+						newGround(pos, grounds[math.random(1, #grounds)])
+					end
+				end
+
+				if b == y_chunks then
+					if pos.y >= to.y - 4 then
+						newGround(pos, grounds[math.random(1, #grounds)])
+					end
+				end
 			end,
 			a, b
 		)
@@ -289,8 +330,29 @@ function Map:border()
 									end
 								end
 								if place then
-									-- make use of smooth here
 									newGround({x = pos.x + (b.x and 1 or 0), y = pos.y + (b.y and 1 or 0), z = pos.z}, b[1])
+									if border.smooth then
+										if border_cases[border_case] == 'cse' then
+											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+										elseif border_cases[border_case] == 's' then
+											newGround({x = pos.x, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+										elseif border_cases[border_case] == 'dsw' then
+											newGround({x = pos.x - 1, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x - 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x + 0, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+										elseif border_cases[border_case] == 'dse' then
+											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x + 2, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+										elseif border_cases[border_case] == 'cne' or border_cases[border_case] == 'dse_dnw' then
+											newGround({x = pos.x + 2, y = pos.y, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+										elseif border_cases[border_case] == 'dne' then
+											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+										end
+									end
 								end
 							end
 						end						

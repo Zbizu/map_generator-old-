@@ -11,14 +11,6 @@ function newGround(pos, id)
 	return Game.createItem(id, 1, pos)
 end
 
--- was missing in newest 1.1 libs
--- commented - not in use
---[[
-function isInRange(pos, fromPos, toPos)
-	return pos.x >= fromPos.x and pos.y >= fromPos.y and pos.z >= fromPos.z and pos.x <= toPos.x and pos.y <= toPos.y and pos.z <= toPos.z
-end
-]]
-
 -- from: otland.net/threads/226401
 function Position:iterateArea(topos, func)
 	for z = self.z, topos.z do
@@ -28,4 +20,26 @@ function Position:iterateArea(topos, func)
 	end
 	end
 	end
+end
+
+-- missing 1.1 functions
+function table:find(value, sensitive)
+	local sensitive = sensitive or true
+	if(not sensitive and type(value) == "string") then
+		for i, v in pairs(table) do
+			if(type(v) == "string") then
+				if(v:lower() == value:lower()) then
+					return i
+				end
+			end
+		end
+		return nil
+	end
+	
+	for i, v in pairs(table) do
+		if(v == value) then
+			return i
+		end
+	end
+	return nil
 end
