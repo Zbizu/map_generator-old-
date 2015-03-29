@@ -1,9 +1,3 @@
-map_lib_cfg = {
-	prefix = "[Generator]: ",
-	msgType = MESSAGE_INFO_DESCR,
-	debugOutput = true
-}
-
 if not Map then
 	Map = setmetatable({
 		instances = {}
@@ -56,7 +50,7 @@ function Map:remove()
 							local creature = creatures[index]
 							if creature:isPlayer() then
 								creature:teleportTo(creature:getTown():getTemplePosition())
-								creature:sendTextMessage(map_lib_cfg.msgType, map_lib_cfg.prefix .. "Area closed.")
+								creature:sendTextMessage(MapGeneratorConfig.msgType, MapGeneratorConfig.prefix .. "Area closed.")
 							else
 								creature:remove()
 							end
@@ -139,8 +133,8 @@ function Map:getLayers()
 end
 
 function Map:debugOutput(...)
-	if map_lib_cfg.debugOutput then
-		io.write(map_lib_cfg.prefix .. self.id .. " >> ")
+	if MapGeneratorConfig.debugOutput then
+		io.write(MapGeneratorConfig.prefix .. self.id .. " >> ")
 		print(...)
 	end
 	return true
