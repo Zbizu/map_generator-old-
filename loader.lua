@@ -1,16 +1,16 @@
 ------------------------------
 -- Loader config
 ------------------------------
-local mapGeneratorDir = "data/map_generator-master/"
+local mapGeneratorDir = "data/map_generator/"
 
 ------------------------------
 -- Core files loader
 ------------------------------
 dofile(mapGeneratorDir .. 'config.lua')
 
-local prefix = map_lib_cfg.prefix .. " >> "
+local prefix = ">> "
 if map_lib_cfg.debugOutput then
-	io.write(prefix .. 'Loading core files...')
+	io.write(prefix .. 'Loading ' .. map_lib_cfg.generatorName .. ' core... ')
 end
 
 local osVer = jit.os
@@ -22,28 +22,28 @@ if osVer == "Windows" then
 end
 
 local filesCount = 0
-for dir in io.popen(dirCommand[1] .. mapGeneratorDir .. '/core/' .. dirCommand[2]):lines() do
+for dir in io.popen(dirCommand[1] .. mapGeneratorDir .. 'core/' .. dirCommand[2]):lines() do
 	filesCount = filesCount + 1
-	dofile(mapGeneratorDir .. '/core/' .. dir)
+	dofile(mapGeneratorDir .. 'core/' .. dir)
 end
 
 if map_lib_cfg.debugOutput then
-	print(" " .. filesCount .. ' file(s) loaded')
+	print(filesCount .. ' file(s) loaded')
 end
 
 ------------------------------
 -- Mod loader
 ------------------------------
 if map_lib_cfg.debugOutput then
-	io.write(prefix .. 'Loading mod files...')
+	io.write(prefix .. 'Loading ' .. map_lib_cfg.generatorName .. ' mods... ')
 end
 
 filesCount = 0
-for dir in io.popen(dirCommand[1] .. mapGeneratorDir .. '/mods/' .. dirCommand[2]):lines() do
+for dir in io.popen(dirCommand[1] .. mapGeneratorDir .. 'mods/' .. dirCommand[2]):lines() do
 	filesCount = filesCount + 1
-	dofile(mapGeneratorDir .. '/mods/' .. dir)
+	dofile(mapGeneratorDir .. 'mods/' .. dir)
 end
 
 if map_lib_cfg.debugOutput then
-	print(" " .. filesCount .. ' file(s) loaded')
+	print(filesCount .. ' file(s) loaded')
 end
