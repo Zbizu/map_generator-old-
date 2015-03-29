@@ -15,7 +15,7 @@ local coreFiles = {
 }
 
 for i = 1, #coreFiles do
-	dofile(mapGeneratorDir .. '/core/' .. coreFiles[i])
+	dofile(mapGeneratorDir .. 'core/' .. coreFiles[i])
 end
 
 ------------------------------
@@ -28,6 +28,6 @@ local modFiles = {
 }
 
 for i = 1, #modFiles do
-	dofile(mapGeneratorDir .. '/mods/' .. modFiles[i])
+	dofile(mapGeneratorDir .. 'mods/' .. modFiles[i])
 end
 
