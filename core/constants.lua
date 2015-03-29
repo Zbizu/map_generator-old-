@@ -1,16 +1,4 @@
 ------------------------------
--- Directions
-------------------------------
-NORTH     = 0
-EAST      = 1
-SOUTH     = 2
-WEST      = 3
-SOUTHWEST = 4
-SOUTHEAST = 5
-NORTHWEST = 6
-NORTHEAST = 7
-
-------------------------------
 -- Map class
 ------------------------------
 MAP_STATUS_NONE = 0
