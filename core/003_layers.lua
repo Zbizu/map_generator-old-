@@ -203,26 +203,6 @@ function Map:drawCircle(pos, grounds, radius, force)
 	end
 end
 
-function Map:addBorder(grounds, borders, z_order, smooth)
--- smooth = true - fix for earth border to not create weird results
-	if not self.exist then return false end
-	
-	local map_borders = self.borders
-	map_borders[#map_borders + 1] = {grounds = grounds, borders = borders, z_order = z_order or 0, smooth = smooth}
-	return true
-end
-
-function Map:getBorderId(itemid)
-	if not self.exist then return nil end
-	
-	for i = 1, #self.borders do
-		if isInArray(self.borders[i].grounds, itemid) then
-			return i
-		end
-	end
-	return nil
-end
-
 local border_cases = {
 	[1] = 'cnw',
 	[2] = 'cne',
@@ -332,7 +312,7 @@ function Map:border()
 								if place then
 									newGround({x = pos.x + (b.x and 1 or 0), y = pos.y + (b.y and 1 or 0), z = pos.z}, b[1])
 									if border.smooth then
-										if border_cases[border_case] == 'cse' then
+										if border_cases[border_case] == 'cse' or border_cases[border_case] == 'dsw_dne' then
 											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
 											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
 										elseif border_cases[border_case] == 's' then
@@ -364,27 +344,4 @@ function Map:border()
 		self.delay = self.delay + 100
 	end
 	end
-end
-
-function Map:draw()
-	if not self.exist then return false end
-	if not (self.fromPosition and self.toPosition) then
-		return false
-	end
-
-	self:debugOutput("Drawing map with seed " .. self.seed .. "...")
-	self:debugOutput(#self.layers .. " layer(s) loaded ...")
-	self:debugOutput(#self.borders .. " border(s) loaded ...")
-	
-	for i = 1, #self.layers do
-		local layer = self.layers[i]
-		layer.callback(unpack(layer.arguments))
-		-- self:debugOutput("Layer " .. i .. ": " .. self.delay/1000)
-	end
-	
-	self:debugOutput("Drawing will take " .. self.delay/1000 .. " seconds.")
-	-- execute onRender
-	addEvent(Map.debugOutput, self.delay, self, "Drawing map completed.")
-	-- addevent toggle open dungeon + execute onOpen
-	return true
 end

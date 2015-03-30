@@ -53,7 +53,7 @@ function map_demo(id, from, to, seed)
 	}, 100000, true)
 	
 	map:addLayer(Map.border, {map})
-	map:draw()
+	map:draw(example_onRender, example_onOpen)
 end
 
 function map_kill(id)
@@ -64,4 +64,16 @@ end
 function map_reset(id)
 	local map = Map(id or 1)
 	map:reset()
+end
+
+function example_onRender(map)
+	if map_lib_cfg.debugOutput then
+		broadcastMessage("Rendering map #" .. map.id .. " started.")
+	end
+end
+
+function example_onOpen(map)
+	if map_lib_cfg.debugOutput then
+		broadcastMessage("Rendering map #" .. map.id .. " completed.")
+	end
 end

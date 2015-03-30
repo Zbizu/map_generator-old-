@@ -124,12 +124,12 @@ function Map:addLayer(callback, arguments)
 	return true
 end
 
-function Map:removeLayer(layer_index)
-	table.remove(self.layers, layer_index)
-end
-
 function Map:getLayers()
 	return self.exist and self.layers
+end
+
+function Map:removeLayer(layer_index)
+	table.remove(self.layers, layer_index)
 end
 
 function Map:debugOutput(...)
@@ -137,5 +137,55 @@ function Map:debugOutput(...)
 		io.write(map_lib_cfg.prefix .. self.id .. " >> ")
 		print(...)
 	end
+	return true
+end
+
+function Map:addBorder(grounds, borders, z_order, smooth)
+-- smooth = true - fix for earth border to not create weird results
+	if not self.exist then return false end
+	
+	local map_borders = self.borders
+	map_borders[#map_borders + 1] = {grounds = grounds, borders = borders, z_order = z_order or 0, smooth = smooth}
+	return true
+end
+
+function Map:getBorderId(itemid)
+	if not self.exist then return nil end
+	
+	for i = 1, #self.borders do
+		if isInArray(self.borders[i].grounds, itemid) then
+			return i
+		end
+	end
+	return nil
+end
+
+function Map:draw(onRender, onOpen)
+	if not self.exist then return false end
+	if not (self.fromPosition and self.toPosition) then
+		return false
+	end
+
+	self:debugOutput("Drawing map with seed " .. self.seed .. "...")
+	self:debugOutput(#self.layers .. " layer(s) loaded ...")
+	self:debugOutput(#self.borders .. " border(s) loaded ...")
+	self.status = MAP_STATUS_RENDERING
+	
+	for i = 1, #self.layers do
+		local layer = self.layers[i]
+		layer.callback(unpack(layer.arguments))
+	end
+	
+	self:debugOutput("Drawing will take " .. self.delay/1000 .. " seconds.")
+	if onRender then
+		onRender(self)
+	end
+	
+	addEvent(Map.debugOutput, self.delay, self, "Drawing map completed.")
+	if onOpen then
+		addEvent(onOpen, self.delay, self)
+	end
+	
+	addEvent(Map.setStatus, self.delay, self, MAP_STATUS_OPEN)
 	return true
 end

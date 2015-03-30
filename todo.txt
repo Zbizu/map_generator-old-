@@ -1,9 +1,9 @@
 priority:
+- ground on ground generator
 - pass session id to drawing functions to prevent further drawing after map:reset()/map:remove()
-- block logout (onLogout) in areas, tp to temple if no logoutblock
-- make use of dungeon status values
-- onRender event + example
-- onOpen event + example
+
+borders:
+- border structures
 
 generators:
 - islands
@@ -19,6 +19,7 @@ movement:
 - tp to another instance (search spawn)
 
 layers:
+- hangable items layer
 - allow setting floor
 - details
 - fields
@@ -37,4 +38,4 @@ map:
 other:
 - player:getDungeon()
 - player:isInDungeon()
-- logoutblock configurable per inst
+- logoutblock configurable per inst, tp to temple if no logoutblock
