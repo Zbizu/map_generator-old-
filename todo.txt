@@ -4,6 +4,7 @@ priority:
 
 borders:
 - border structures
+- map:removeBorder(index) integrated with layers
 
 generators:
 - islands

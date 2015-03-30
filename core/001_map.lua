@@ -68,8 +68,6 @@ function Map:remove()
 	
 	self.exist = false
 	Map.instances[self.id] = nil
-	collectgarbage()
-	collectgarbage()
 end
 
 function Map:isRemoved()
