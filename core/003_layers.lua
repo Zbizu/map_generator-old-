@@ -318,6 +318,9 @@ function Map:border()
 										elseif border_cases[border_case] == 's' then
 											newGround({x = pos.x, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
 											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+										elseif border_cases[border_case] == 'e' then
+											newGround({x = pos.x + 2, y = pos.y, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
 										elseif border_cases[border_case] == 'dsw' then
 											newGround({x = pos.x - 1, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
 											newGround({x = pos.x - 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])

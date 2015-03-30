@@ -29,6 +29,23 @@ if map_lib_cfg.debugOutput then
 end
 
 ------------------------------
+-- Resources loader
+------------------------------
+if map_lib_cfg.debugOutput then
+	io.write(prefix .. 'Loading ' .. map_lib_cfg.generatorName .. ' resources... ')
+end
+
+filesCount = 0
+for dir in io.popen(dirCommand[1] .. mapGeneratorDir .. 'resources/' .. dirCommand[2]):lines() do
+	filesCount = filesCount + 1
+	dofile(mapGeneratorDir .. 'resources/' .. dir)
+end
+
+if map_lib_cfg.debugOutput then
+	print(filesCount .. ' file(s) loaded')
+end
+
+------------------------------
 -- Mod loader
 ------------------------------
 if map_lib_cfg.debugOutput then
