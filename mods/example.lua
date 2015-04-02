@@ -13,32 +13,24 @@ function map_demo(id, from, to, seed)
 	map:addLayer(Map.grid, {map, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726}})
 	--[[
 	to do:
-	outer border example function
 	inner border example function
-	map:addBorder({351, 352, 353, 354, 355},
-	{
-		dse = {{4819}},
-		dsw = {{4818, x = true}}, -- true means pos.x + 1
-		s = {{4810}},
-		dne = {{4817, y = true}},
-		e = {{4809}},
-		dsw_dne = {{4817, y = true}, {4818, x = true}},
-		cse = {{4815}},
-		dnw = {{4816, x = true, y = true}},
-		dse_dnw = {{4819}, {4816, x = true, y = true}},
-		w = {{4811, x = true}},
-		csw = {{4814, x = true}, {4810}, {4811, x = true, y = true}},
-		n = {{4808, y = true}},
-		cne = {{4813, y = true}, {4809}, {4808, x = true, y = true}},
-		cnw = {{4812, x = true, y = true}, {4808, y = true}, {4811, x = true}},
-	}, 100000)
-	
 	]]
 
-	-- cave border example
+	-- border cave
 	map:addBorder({351, 352, 353, 354, 355}, getCaveBorder(MAP_BORDERS[MAP_BORDER_EARTH_STONE]), 100000, true)
-	
 	map:addLayer(Map.border, {map})
+	map:addLayer(Map.removeBorderLayer, {map, 1})
+	
+	-- extra earth on tunnels
+	map:addLayer(Map.caves, {map, {194}, 400, 3500, 1, 3, false, nil, {351, 352, 353, 354, 355}})
+	map:addBorder({194}, getOuterBorder(MAP_BORDERS[MAP_BORDER_DIRT_GREEN]), 1000, false, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726})
+	-- water
+	map:addLayer(Map.caves, {map, {4608}, 300, 25000, 2, 3, false, nil, {194, 351, 352, 353, 354, 355}})
+	map:addBorder({4608}, getOuterBorder(MAP_BORDERS[MAP_BORDER_SEA]), 2000, false, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726})
+	
+	-- border grounds
+	map:addLayer(Map.border, {map})
+	
 	map:draw(example_onRender, example_onOpen)
 end
 

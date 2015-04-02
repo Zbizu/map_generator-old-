@@ -11,6 +11,8 @@ MAP_STATUS_LOCKED = 2
 ------------------------------
 -- Border constants
 ------------------------------
+MAP_BORDER_SEA = 27
+MAP_BORDER_DIRT_GREEN = 29
 MAP_BORDER_EARTH = 48
 MAP_BORDER_EARTH_STONE = 49
 

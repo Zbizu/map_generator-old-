@@ -138,12 +138,12 @@ function Map:debugOutput(...)
 	return true
 end
 
-function Map:addBorder(grounds, borders, z_order, smooth)
+function Map:addBorder(grounds, borders, z_order, smooth, ignoredGrounds)
 -- smooth = true - fix for earth border to not create weird results
 	if not self.exist then return false end
 	
 	local map_borders = self.borders
-	map_borders[#map_borders + 1] = {grounds = grounds, borders = borders, z_order = z_order or 0, smooth = smooth}
+	map_borders[#map_borders + 1] = {grounds = grounds, borders = borders, z_order = z_order or 0, smooth = smooth, ignoredGrounds = ignoredGrounds}
 	return true
 end
 
@@ -156,6 +156,14 @@ function Map:getBorderId(itemid)
 		end
 	end
 	return nil
+end
+
+function Map:removeBorder(index)
+	table.remove(self.borders, index)
+end
+
+function Map:removeBorderLayer(index)
+	addEvent(Map.removeBorder, self.delay, self, index)
 end
 
 function Map:draw(onRender, onOpen)

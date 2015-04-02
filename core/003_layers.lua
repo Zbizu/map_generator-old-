@@ -1,4 +1,3 @@
-
 function Map:drawChunk(func, cx, cy, levels)
 	if not self.exist then return false end
 	local from = self.fromPosition
@@ -26,7 +25,6 @@ function Map:drawChunk(func, cx, cy, levels)
 		end
 		end
 	end
-	
 end
 
 function Map:base(grounds, levels)
@@ -145,8 +143,9 @@ local caveDirs = {
 	[7] = {-1, 1, {2, 3, 7}} -- sw
 }
 
-function Map:caves(grounds, chance, stopChance, minRadius, maxRadius, force, levels)
+function Map:caves(grounds, chance, stopChance, minRadius, maxRadius, force, levels, onlyOn)
 -- if force parameter is true, it will draw caves on tiles without grounds too
+-- onlyOn = new tiles will be drawn only on these tiles
 	local from = self.fromPosition
 	local to = self.toPosition
 	local x_chunks = math.floor((to.x - from.x) / 16)
@@ -179,7 +178,7 @@ function Map:caves(grounds, chance, stopChance, minRadius, maxRadius, force, lev
 				
 						nx = nx + caveDirs[newDir][1]
 						ny = ny + caveDirs[newDir][2]
-						self:drawCircle({x = pos.x + nx, y = pos.y + ny, z = pos.z}, grounds, math.random(minRadius, maxRadius), force)
+						self:drawCircle({x = pos.x + nx, y = pos.y + ny, z = pos.z}, grounds, math.random(minRadius, maxRadius), force, onlyOn)
 					until (math.random(1, 100000) <= stopChance or i == 200)
 				end
 			end,
@@ -190,7 +189,7 @@ function Map:caves(grounds, chance, stopChance, minRadius, maxRadius, force, lev
 	end
 end
 
-function Map:drawCircle(pos, grounds, radius, force)
+function Map:drawCircle(pos, grounds, radius, force, onlyOn)
 	local from = self.fromPosition
 	local to = self.toPosition
 	for x = -radius, radius do
@@ -202,8 +201,11 @@ function Map:drawCircle(pos, grounds, radius, force)
 				if force then
 					newGround(circlePixel, grounds[math.random(1, #grounds)])
 				else
-					if Tile(circlePixel) then
-						Game.createItem(grounds[math.random(1, #grounds)], 1, circlePixel)
+					local tile = Tile(circlePixel)
+					if tile then
+						if (not onlyOn) or isInArray(onlyOn, tile:getGround():getId()) then
+							Game.createItem(grounds[math.random(1, #grounds)], 1, circlePixel)
+						end
 					end
 				end
 			end
@@ -263,32 +265,33 @@ function Map:border(levels)
 				end
 				
 				local bordersByOrder = {}
-								
 				local lowIndex = nil
 				local lowOrder = nil
 				
+				-- to do: fix placing border on higher z_order areas bug
 				for i = 1, 4 do
-					lowIndex = 1
-					lowOrder = 1000000
-
-					if grounds[i] then
-						local borderId = self:getBorderId(grounds[i])
-						if borderId then
-							local order = self.borders[borderId].z_order
-							if order < lowOrder and (not table.find(bordersByOrder, i)) then
-								lowIndex = i
+					local borderId = self:getBorderId(grounds[i])
+					if borderId then
+						local order = self.borders[borderId].z_order
+						
+						if lowIndex then
+							if order < lowOrder and (not table.find(bordersByOrder, borderId)) then
+								lowIndex = borderId
 								lowOrder = order
 							end
+						else
+							lowIndex = i
+							lowOrder = order
 						end
 					end
-				end
 				
-				if lowIndex ~= nil then
-					bordersByOrder[#bordersByOrder + 1] = lowIndex
+					if lowIndex ~= nil and (not table.find(bordersByOrder, borderId)) then
+						bordersByOrder[#bordersByOrder + 1] = borderId
+					end
 				end
-					
-				for i = 1, #bordersByOrder do
-					local border = self.borders[i]
+
+				for i = -#bordersByOrder, -1 do
+					local border = self.borders[bordersByOrder[-i]]
 					local border_case = 0
 					for ground = 1, 4 do
 						if isInArray(border.grounds, grounds[ground]) then
@@ -297,58 +300,66 @@ function Map:border(levels)
 					end
 					
 					if border_case > 0 and border_case < 15 then
-						local borders = border.borders[border_cases[border_case]]
+						local borders = border.borders
 						if borders then
-							for borderIndex = 1, #borders do
-								local b = borders[borderIndex]
-								local borderPosIndex = (b.x and 1 or 0) + (b.y and 2 or 0) + 1
-								local place = false
-								if isInArray(border.grounds, grounds[ground]) then
-									place = true
-								else
-									if grounds[borderPosIndex] then
-										local borderId = self:getBorderId(grounds[borderPosIndex])
-										if borderId and i ~= borderId then
-											if borders[borderId].z_order < border.z_order then
+							borders = border.borders[border_cases[border_case]]
+							if borders then
+								for borderIndex = 1, #borders do
+									-- rewrite it to fix bug described above
+									-- fix amount of borders on tile
+									local b = borders[borderIndex]
+									local borderPosIndex = (b.x and 1 or 0) + (b.y and 2 or 0) + 1
+									local place = false
+									if isInArray(border.grounds, grounds[ground]) then
+										place = true
+									else
+										if grounds[borderPosIndex] then
+											local borderId = self:getBorderId(grounds[borderPosIndex])
+											if borderId and -i ~= borderId then
+												if self.borders[borderId].z_order < border.z_order then
+													place = true
+												end
+											else
 												place = true
 											end
 										else
 											place = true
 										end
-									else
-										place = true
 									end
-								end
-								if place then
-									newGround({x = pos.x + (b.x and 1 or 0), y = pos.y + (b.y and 1 or 0), z = pos.z}, b[1])
-									if border.smooth then
-										if border_cases[border_case] == 'cse' or border_cases[border_case] == 'dsw_dne' then
-											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-										elseif border_cases[border_case] == 's' then
-											newGround({x = pos.x, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-										elseif border_cases[border_case] == 'e' then
-											newGround({x = pos.x + 2, y = pos.y, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-										elseif border_cases[border_case] == 'dsw' then
-											newGround({x = pos.x - 1, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x - 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x + 0, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-										elseif border_cases[border_case] == 'dse' then
-											newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-											newGround({x = pos.x + 2, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-										elseif border_cases[border_case] == 'cne' or border_cases[border_case] == 'dse_dnw' then
-											newGround({x = pos.x + 2, y = pos.y, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
-										elseif border_cases[border_case] == 'dne' then
-											newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+									if place then
+										if (not border.ignoredGrounds) or (not isInArray(border.ignoredGrounds, grounds[borderPosIndex])) then
+											newGround({x = pos.x + (b.x and 1 or 0), y = pos.y + (b.y and 1 or 0), z = pos.z}, b[1])
+										end
+										
+										if border.smooth then
+											if border_cases[border_case] == 'cse' or border_cases[border_case] == 'dsw_dne' then
+												newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											elseif border_cases[border_case] == 's' then
+												newGround({x = pos.x, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											elseif border_cases[border_case] == 'e' then
+												newGround({x = pos.x + 2, y = pos.y, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											elseif border_cases[border_case] == 'dsw' then
+												newGround({x = pos.x - 1, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x - 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x + 0, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											elseif border_cases[border_case] == 'dse' then
+												newGround({x = pos.x + 1, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+												newGround({x = pos.x + 2, y = pos.y + 2, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											elseif border_cases[border_case] == 'cne' or border_cases[border_case] == 'dse_dnw' then
+												newGround({x = pos.x + 2, y = pos.y, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											elseif border_cases[border_case] == 'dne' then
+												newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
+											end
 										end
 									end
 								end
 							end
-						end						
+						end
 					end
 				end
 			end,

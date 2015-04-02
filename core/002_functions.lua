@@ -37,6 +37,25 @@ return {
 	}
 end
 
+function getOuterBorder(borders)
+return {
+		dse = {{borders[dse]}},
+		dsw = {{borders[dsw], x = true}},
+		s = {{borders[s]}},
+		dne = {{borders[dne], y = true}},
+		e = {{borders[e]}},
+		dsw_dne = {{borders[dne], y = true}, {borders[dsw], x = true}},
+		cse = {{borders[cse]}},
+		dnw = {{borders[dnw], x = true, y = true}},
+		dse_dnw = {{borders[dse]}, {borders[dnw], x = true, y = true}},
+		w = {{borders[w], x = true}},
+		csw = {{borders[csw], x = true}, {borders[s]}},
+		n = {{borders[n], y = true}},
+		cne = {{borders[cne], y = true}, {borders[e]}},
+		cnw = {{borders[cnw], x = true, y = true}, {borders[n], y = true}, {borders[w], x = true}},
+	}
+end
+
 -- from: otland.net/threads/226401
 function Position:iterateArea(topos, func)
 	for z = self.z, topos.z do
