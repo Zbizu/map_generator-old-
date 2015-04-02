@@ -6,10 +6,10 @@ function map_demo(id, from, to, seed)
 
 	local map = Map(id, from, to)
 	map:setSeed(seed) -- seed, supports numbers and strings
-	map:addLayer(Map.base, {map, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726}}) -- grounds
-	-- generators, one should be used at a time or you may get weird results
-	-- map:addLayer(Map.tunnels, {map, {351, 352, 353, 354, 355}, 5, 3, 5, 3, 9}) -- grounds, chance per tile 5%, length 3-5, height 3-9
-	map:addLayer(Map.caves, {map, {351, 352, 353, 354, 355}, 75, 100, 4, 5}) -- 0.075% startchance, 0.1% stopchance, 4 min radius, 5 max radius
+	map:addLayer(Map.base, {map, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726}}) -- grounds, levels (applies all if not set)
+	-- generators, one should be used at a time on certain Z level or you may get weird results
+	map:addLayer(Map.tunnels, {map, {351, 352, 353, 354, 355}, 5, 3, 5, 3, 9, false, {to.z - 1, to.z}}) -- grounds, chance per tile 5%, length 3-5, height 3-9, force, levels
+	map:addLayer(Map.caves, {map, {351, 352, 353, 354, 355}, 75, 100, 4, 5, false, {from.z}}) -- 0.075% startchance, 0.1% stopchance, 4 min radius, 5 max radius, force, levels
 	map:addLayer(Map.grid, {map, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726}})
 	--[[
 	to do:

@@ -1,4 +1,5 @@
-function Map:drawChunk(func, cx, cy)
+
+function Map:drawChunk(func, cx, cy, levels)
 	if not self.exist then return false end
 	local from = self.fromPosition
 	local to = self.toPosition
@@ -6,20 +7,29 @@ function Map:drawChunk(func, cx, cy)
 	if not (from and to) then return false end
 	local startPos = Position({x = from.x + (cx * 16), y = from.y + (cy * 16), z = from.z})
 	local endPos = {x = from.x + (cx * 16) + 15, y = from.y + (cy * 16) + 15, z = to.z}
+	local default_levels = {}
+	if not levels then
+		for i = from.z, to.z do
+			default_levels[#default_levels + 1] = i
+		end
+	end
 	
-	for z = startPos.z, endPos.z do
-		math.randomseed(tonumber((self.seed or os.time()) .. cx .. cy .. z))
+	levels = levels or default_levels
+	
+	for z = 1, #levels do
+		math.randomseed(tonumber((self.seed or os.time()) .. cx .. cy .. levels[z]))
 		for y = startPos.y, endPos.y do
 		for x = startPos.x, endPos.x do
 			if x <= to.x and y <= to.y then
-				func({x = x, y = y, z = z})
+				func({x = x, y = y, z = levels[z]})
 			end
 		end
 		end
 	end
+	
 end
 
-function Map:base(grounds)
+function Map:base(grounds, levels)
 	local from = self.fromPosition
 	local to = self.toPosition
 	local x_chunks = math.floor((to.x - from.x) / 16)
@@ -31,14 +41,14 @@ function Map:base(grounds)
 			function(pos)
 				newGround(pos, grounds[math.random(1, #grounds)])
 			end,
-			a, b
+			a, b, levels
 		)
 		self.delay = self.delay + 100
 	end
 	end
 end
 
-function Map:grid(grounds)
+function Map:grid(grounds, levels)
 	local from = self.fromPosition
 	local to = self.toPosition
 	local x_chunks = math.floor((to.x - from.x) / 16)
@@ -72,14 +82,14 @@ function Map:grid(grounds)
 					end
 				end
 			end,
-			a, b
+			a, b, levels
 		)
 		self.delay = self.delay + 100
 	end
 	end
 end
 
-function Map:tunnels(grounds, chance, minLength, maxLength, minHeight, maxHeight, force)
+function Map:tunnels(grounds, chance, minLength, maxLength, minHeight, maxHeight, force, levels)
 -- if force parameter is true, it will draw tunnels on tiles without grounds too
 	local from = self.fromPosition
 	local to = self.toPosition
@@ -117,7 +127,7 @@ function Map:tunnels(grounds, chance, minLength, maxLength, minHeight, maxHeight
 					end	
 				end
 			end,
-			a, b
+			a, b, levels
 		)
 		self.delay = self.delay + 100
 	end
@@ -135,7 +145,7 @@ local caveDirs = {
 	[7] = {-1, 1, {2, 3, 7}} -- sw
 }
 
-function Map:caves(grounds, chance, stopChance, minRadius, maxRadius, force)
+function Map:caves(grounds, chance, stopChance, minRadius, maxRadius, force, levels)
 -- if force parameter is true, it will draw caves on tiles without grounds too
 	local from = self.fromPosition
 	local to = self.toPosition
@@ -173,7 +183,7 @@ function Map:caves(grounds, chance, stopChance, minRadius, maxRadius, force)
 					until (math.random(1, 100000) <= stopChance or i == 200)
 				end
 			end,
-			a, b
+			a, b, levels
 		)
 		self.delay = self.delay + 100
 	end
@@ -220,7 +230,7 @@ local border_cases = {
 	[14] = 'dse'
 }
 
-function Map:border()
+function Map:border(levels)
 	local from = self.fromPosition
 	local to = self.toPosition
 	local x_chunks = math.floor((to.x - from.x) / 16)
@@ -342,7 +352,7 @@ function Map:border()
 					end
 				end
 			end,
-			a, b
+			a, b, levels
 		)
 		self.delay = self.delay + 100
 	end
