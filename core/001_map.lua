@@ -149,13 +149,12 @@ end
 
 function Map:getBorderId(itemid)
 	if not self.exist then return nil end
-	
+		
 	for i = 1, #self.borders do
 		if isInArray(self.borders[i].grounds, itemid) then
 			return i
 		end
 	end
-	return nil
 end
 
 function Map:removeBorder(index)

@@ -9,10 +9,16 @@ function string:toSeed()
 end
 
 function newGround(pos, id)
-	if not Tile(pos) then
+	local tile = Tile(pos)
+	if not tile then
 		Game.createTile(pos)
+		tile = Tile(pos)
 	end
-	return Game.createItem(id, 1, pos)
+	
+	if not tile:getItemById(id) then
+		return Game.createItem(id, 1, pos)
+	end
+	return false
 end
 
 local n, e, s, w = BORDER_NORTH, BORDER_EAST, BORDER_SOUTH, BORDER_WEST
@@ -38,7 +44,8 @@ return {
 end
 
 function getOuterBorder(borders)
-return {
+	return {
+		n = {{borders[n], y = true}},
 		dse = {{borders[dse]}},
 		dsw = {{borders[dsw], x = true}},
 		s = {{borders[s]}},
@@ -50,12 +57,10 @@ return {
 		dse_dnw = {{borders[dse]}, {borders[dnw], x = true, y = true}},
 		w = {{borders[w], x = true}},
 		csw = {{borders[csw], x = true}, {borders[s]}},
-		n = {{borders[n], y = true}},
-		cne = {{borders[cne], y = true}, {borders[e]}},
+		cne = {{borders[e]}, {borders[cne], y = true}},
 		cnw = {{borders[cnw], x = true, y = true}, {borders[n], y = true}, {borders[w], x = true}},
 	}
 end
-
 -- from: otland.net/threads/226401
 function Position:iterateArea(topos, func)
 	for z = self.z, topos.z do
@@ -68,7 +73,7 @@ function Position:iterateArea(topos, func)
 end
 
 -- missing 1.1 functions
-function table:find(value, sensitive)
+function table.find(table, value, sensitive)
 	local sensitive = sensitive or true
 	if(not sensitive and type(value) == "string") then
 		for i, v in pairs(table) do
@@ -80,7 +85,6 @@ function table:find(value, sensitive)
 		end
 		return nil
 	end
-	
 	for i, v in pairs(table) do
 		if(v == value) then
 			return i

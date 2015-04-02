@@ -4,7 +4,8 @@ priority:
 
 borders:
 - border structures
-- map:removeBorder(index) integrated with layers
+- rewrite cave and water borders
+- apply fix while bordering
 
 generators:
 - islands

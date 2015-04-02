@@ -18,15 +18,15 @@ function map_demo(id, from, to, seed)
 
 	-- border cave
 	map:addBorder({351, 352, 353, 354, 355}, getCaveBorder(MAP_BORDERS[MAP_BORDER_EARTH_STONE]), 100000, true)
-	map:addLayer(Map.border, {map})
+	map:addLayer(Map.borderCave, {map})
 	map:addLayer(Map.removeBorderLayer, {map, 1})
 	
 	-- extra earth on tunnels
 	map:addLayer(Map.caves, {map, {194}, 400, 3500, 1, 3, false, nil, {351, 352, 353, 354, 355}})
-	map:addBorder({194}, getOuterBorder(MAP_BORDERS[MAP_BORDER_DIRT_GREEN]), 1000, false, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726})
+	map:addBorder({194}, MAP_BORDERS[MAP_BORDER_DIRT_GREEN], 1000, false, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726})
 	-- water
 	map:addLayer(Map.caves, {map, {4608}, 300, 25000, 2, 3, false, nil, {194, 351, 352, 353, 354, 355}})
-	map:addBorder({4608}, getOuterBorder(MAP_BORDERS[MAP_BORDER_SEA]), 2000, false, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726})
+	map:addBorder({4608}, MAP_BORDERS[MAP_BORDER_SEA], 2000, false, {101, 5711, 5712, 5713, 5714, 5715, 5716, 5717, 5718, 5719, 5720, 5721, 5722, 5723, 5724, 5725, 5726})
 	
 	-- border grounds
 	map:addLayer(Map.border, {map})

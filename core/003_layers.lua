@@ -232,7 +232,8 @@ local border_cases = {
 	[14] = 'dse'
 }
 
-function Map:border(levels)
+-- to do: merge with normal border function
+function Map:borderCave(levels)
 	local from = self.fromPosition
 	local to = self.toPosition
 	local x_chunks = math.floor((to.x - from.x) / 16)
@@ -268,7 +269,6 @@ function Map:border(levels)
 				local lowIndex = nil
 				local lowOrder = nil
 				
-				-- to do: fix placing border on higher z_order areas bug
 				for i = 1, 4 do
 					local borderId = self:getBorderId(grounds[i])
 					if borderId then
@@ -305,8 +305,6 @@ function Map:border(levels)
 							borders = border.borders[border_cases[border_case]]
 							if borders then
 								for borderIndex = 1, #borders do
-									-- rewrite it to fix bug described above
-									-- fix amount of borders on tile
 									local b = borders[borderIndex]
 									local borderPosIndex = (b.x and 1 or 0) + (b.y and 2 or 0) + 1
 									local place = false
@@ -355,6 +353,80 @@ function Map:border(levels)
 											elseif border_cases[border_case] == 'dne' then
 												newGround({x = pos.x + 2, y = pos.y + 1, z = pos.z}, border.grounds[math.random(1, #border.grounds)])
 											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end,
+			a, b, levels
+		)
+		self.delay = self.delay + 100
+	end
+	end
+end
+
+function Map:border(levels)
+	local from = self.fromPosition
+	local to = self.toPosition
+	local x_chunks = math.floor((to.x - from.x) / 16)
+	local y_chunks = math.floor((to.y - from.y) / 16)
+	
+	for a = 0, x_chunks do
+	for b = 0, y_chunks do
+		addEvent(Map.drawChunk, self.delay, self,
+			function(pos)
+				local tiles = {
+					Tile(pos),
+					Tile(pos.x + 1, pos.y, pos.z),
+					Tile(pos.x, pos.y + 1, pos.z),
+					Tile(pos.x + 1, pos.y + 1, pos.z)
+				}
+				
+				local grounds = {}
+				local borders = {}
+				for i = 1, 4 do
+					local tile = tiles[i]
+					local ground = tile and tile:getGround()
+					if ground then
+						grounds[i] = ground.itemid
+					end
+					
+					local borderId = self:getBorderId(grounds[i])
+					if not table.find(borders, borderId) then
+						borders[#borders + 1] = borderId
+					end
+				end
+				
+				table.sort(borders, function(lhs, rhs)
+					return self.borders[lhs].z_order < self.borders[rhs].z_order
+				end)
+				
+				for borderId = 1, #borders do
+					local border = self.borders[borders[borderId]]
+					local outerBorder = getOuterBorder(border.borders)
+					local border_case = 0
+
+					for ground = 1, 4 do
+						if isInArray(border.grounds, grounds[ground]) then
+							border_case = border_case + (2 ^ (ground - 1))
+						end
+					end
+					
+					for ground = 1, 4 do
+						if bit.band(border_case, 0xF) ~= 0 then
+							if outerBorder[border_cases[border_case]] then
+								for i = 1, #outerBorder[border_cases[border_case]] do
+									local borderItem = outerBorder[border_cases[border_case]][i]
+									local xv = (borderItem.x and 1 or 0)
+									local index = 1 + xv + (borderItem.y and 2 or 0)
+									local nTileBorder = self:getBorderId(grounds[index])
+									local nTileOrder = (nTileBorder and self.borders[nTileBorder].z_order) or 0
+									if ((not border.ignoredGrounds) or (not isInArray(border.ignoredGrounds, grounds[index]))) and outerBorder[border_cases[border_case]] then
+										if border.z_order > nTileOrder then
+											newGround({x = pos.x + xv, y = pos.y + (borderItem.y and 1 or 0), z = pos.z}, borderItem[1])
 										end
 									end
 								end
